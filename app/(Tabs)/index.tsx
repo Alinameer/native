@@ -1,9 +1,12 @@
-import { Text, View } from "react-native";
+import { ScrollView } from "react-native";
+import TravelCarousel from "@/components/TravelCarousel";
+import SpecialOffers from "@/components/SpecialOffers";
 
 export default function Index() {
   return (
-    <View className="flex-1 items-center justify-center bg-red-500">
-      <Text className="text-white text-2xl">hello</Text>
-    </View>
+    <ScrollView className="flex-1 bg-gray-50">
+      <TravelCarousel />
+      <SpecialOffers />
+    </ScrollView>
   );
 }
