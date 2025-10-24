@@ -49,12 +49,12 @@ const offers: Offer[] = [
 
 export default function SpecialOffers() {
   return (
-    <View style={{ padding: 20, backgroundColor: '#f9fafb' }}>
-      <View style={{ marginBottom: 20 }}>
-        <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#1a1a1a', marginBottom: 8 }}>
+    <View className="p-5 bg-gray-50">
+      <View className="mb-5">
+        <Text className="text-3xl font-bold text-gray-900 mb-2">
           Special Offers
         </Text>
-        <Text style={{ fontSize: 16, color: '#666', lineHeight: 24 }}>
+        <Text className="text-base text-gray-600 leading-6">
           Explore the best offers we have and greatest experiences for your next adventure
         </Text>
       </View>

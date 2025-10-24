@@ -1,13 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Image, Dimensions, ScrollView, Platform, Pressable } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Image, ScrollView, Pressable } from 'react-native';
 import { Text } from 'react-native';
-
-const getWidth = () => {
-  if (Platform.OS === 'web') {
-    return typeof window !== 'undefined' ? window.innerWidth : 375;
-  }
-  return Dimensions.get('window').width;
-};
 
 interface TravelDestination {
   id: number;
@@ -57,30 +50,23 @@ const destinations: TravelDestination[] = [
 
 export default function TravelCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [width, setWidth] = useState(getWidth());
   const scrollViewRef = useRef<ScrollView>(null);
-
-  useEffect(() => {
-    if (Platform.OS === 'web') {
-      const handleResize = () => {
-        setWidth(window.innerWidth);
-      };
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, []);
 
   const handleScroll = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const index = Math.round(scrollPosition / width);
+    const screenWidth = event.nativeEvent.layoutMeasurement.width;
+    const index = Math.round(scrollPosition / screenWidth);
     setCurrentIndex(index);
   };
 
   const scrollToIndex = (index: number) => {
-    scrollViewRef.current?.scrollTo({
-      x: index * width,
-      animated: true,
-    });
+    const scrollView = scrollViewRef.current;
+    if (scrollView) {
+      scrollView.scrollTo({
+        x: index * (scrollView as any)._scrollViewRef?._scrollMetrics?.visibleLength || 0,
+        animated: true,
+      });
+    }
     setCurrentIndex(index);
   };
 
@@ -94,42 +80,29 @@ export default function TravelCarousel() {
     scrollToIndex(newIndex);
   };
 
-  const containerHeight = Platform.OS === 'web' ? 500 : 384;
-  const imageHeight = Platform.OS === 'web' ? 500 : 384;
-
   return (
-    <View style={{ height: containerHeight, width: '100%' }}>
+    <View className="w-full h-96">
       <ScrollView
         ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
-        snapToInterval={width}
         decelerationRate="fast"
-        style={{ flex: 1 }}
+        className="flex-1"
       >
         {destinations.map((destination) => (
-          <View key={destination.id} style={{ width, height: imageHeight }}>
+          <View key={destination.id} className="w-screen h-96">
             <Image
               source={{ uri: destination.imageUrl }}
-              style={{ width: '100%', height: '100%' }}
+              className="w-full h-full"
               resizeMode="cover"
             />
-            <View
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                backgroundColor: 'rgba(0,0,0,0.4)',
-                padding: 24
-              }}
-            >
-              <Text style={{ color: 'white', fontSize: 30, fontWeight: 'bold' }}>
+            <View className="absolute bottom-0 left-0 right-0 bg-black/40 p-6">
+              <Text className="text-white text-3xl font-bold">
                 {destination.title}
               </Text>
-              <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 18 }}>
+              <Text className="text-white/90 text-lg">
                 {destination.location}
               </Text>
             </View>
@@ -140,62 +113,25 @@ export default function TravelCarousel() {
       {/* Navigation Arrows */}
       <Pressable
         onPress={goToPrevious}
-        style={{
-          position: 'absolute',
-          left: 16,
-          top: '50%',
-          transform: [{ translateY: -20 }],
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
+        className="absolute left-4 top-1/2 -translate-y-5 bg-black/50 w-10 h-10 rounded-full justify-center items-center"
       >
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold' }}>‹</Text>
+        <Text className="text-white text-2xl font-bold">‹</Text>
       </Pressable>
 
       <Pressable
         onPress={goToNext}
-        style={{
-          position: 'absolute',
-          right: 16,
-          top: '50%',
-          transform: [{ translateY: -20 }],
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
+        className="absolute right-4 top-1/2 -translate-y-5 bg-black/50 w-10 h-10 rounded-full justify-center items-center"
       >
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold' }}>›</Text>
+        <Text className="text-white text-2xl font-bold">›</Text>
       </Pressable>
 
       {/* Pagination dots */}
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 8,
-          left: 0,
-          right: 0,
-          flexDirection: 'row',
-          justifyContent: 'center',
-          gap: 8
-        }}
-      >
+      <View className="absolute bottom-2 left-0 right-0 flex-row justify-center gap-2">
         {destinations.map((_, index) => (
           <Pressable
             key={index}
             onPress={() => scrollToIndex(index)}
-            style={{
-              height: 8,
-              width: index === currentIndex ? 32 : 8,
-              borderRadius: 4,
-              backgroundColor: index === currentIndex ? 'white' : 'rgba(255,255,255,0.5)',
-            }}
+            className={`h-2 rounded ${index === currentIndex ? 'w-8 bg-white' : 'w-2 bg-white/50'}`}
           />
         ))}
       </View>
